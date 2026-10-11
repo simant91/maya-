@@ -1,0 +1,7 @@
+{
+  "appId": "com.simanto.maya",
+  "appName": "Maya",
+  "webDir": "www",
+  "backgroundColor": "#0b0705",
+  "server": { "androidScheme": "https" }
+}
