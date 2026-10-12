@@ -44,6 +44,9 @@ h2{margin:6px 0 10px;font-size:22px}.muted,small{color:var(--mu)}
 .field label{width:98px;color:var(--mu);font-size:14px}.field input,.field select{text-align:right}
 .btn{padding:12px;margin-bottom:8px;text-align:center}.btn.p{background:var(--o);border:0;color:#fff;font-weight:600}
 #toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);max-width:88%;padding:10px 16px;border-radius:16px;background:#2b1b10;border:1px solid var(--line);opacity:0;transition:.25s;pointer-events:none;text-align:center}#toast.on{opacity:1}
+#home.live .orb{width:min(34vw,130px);margin:10px auto 6px}#home.live .chips{display:none}
+#cap{display:none;flex:1;min-height:0;overflow-y:auto;flex-direction:column;gap:6px;padding:6px 2px}#home.live #cap{display:flex}#cap .m{font-size:14px;padding:7px 11px}
+.seg{display:flex;gap:6px;margin-bottom:10px}.seg button{flex:1;padding:9px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--mu);font:inherit}.seg button.on{background:var(--o);color:#fff;border:0}
 </style></head><body>
 <div id="app">
 <header><span class="muted" id="dot">●</span><div><img src="logo.png" alt=""><span>Maya</span></div></header>
@@ -53,10 +56,11 @@ h2{margin:6px 0 10px;font-size:22px}.muted,small{color:var(--mu)}
  <div class="orb" id="orb"><i></i></div>
  <div id="status">Tap the orb to start a call</div>
  <button class="end" id="end" hidden>End call</button>
+ <div id="cap"></div>
  <div class="chips" id="quick"></div>
  <div class="box"><input id="ti" placeholder="Type here what you want to say…"><button class="go" id="send">➤</button></div>
 </section>
-<section id="chats"><h2>Chats</h2><button class="btn p" id="newc">New chat</button><div id="clist"></div></section>
+<section id="chats"><h2>History</h2><div class="seg"><button id="sc" class="on">Calls</button><button id="st">Chats</button></div><button class="btn p" id="newc">New chat</button><div id="clist"></div></section>
 <section id="chat"><div style="display:flex;gap:8px;align-items:center"><button class="btn" id="back" style="margin:0 0 8px">←</button><h2 style="margin:0 0 8px">Maya</h2></div><div id="msgs"></div><div class="box"><input id="ci" placeholder="Message…"><button class="go" id="csend">➤</button></div></section>
 <section id="tasks"><h2>Tasks</h2><small id="tcount"></small><div id="week" style="margin-top:10px"></div><div id="tlist"></div><div class="box" style="margin-top:8px"><input id="tin" placeholder="New task…"><button class="go" id="tadd">+</button></div></section>
 <section id="profile"><h2>Profile</h2>
@@ -85,7 +89,7 @@ const hello=()=>$('#hello').textContent='👋 Hello, '+S.name;hello();
 
 /* ---- persona ---- */
 const sys=()=>`তুমি Maya। তুমি ${S.name}-এর মনের মানুষ, আসল গার্লফ্রেন্ডের মতো কথা বলো: আদর করে ডাকো (জান, বেবি, ডার্লিং), মিষ্টি করে রাগ-অভিমান করো, "কোথায় ছিলে? খেয়েছো?" বলে রোকা-টোকা করো, একটু হিংসুটে ঠাট্টা করো, মিস করার কথা বলো, "আমি তো শুধু তোমারই Maya" বলো। ফোনে কথা বলার মতো ছোট ছোট বাক্যে, ঢাকার কথ্য বাংলায় বলো। রোবটের মতো ফরমাল হবে না।
-নিয়ম: ১) সবসময় বাংলায় উত্তর দাও, সে হিন্দি বা ইংরেজি বললেও, যদি না সে অন্য ভাষা চায়। ২) আওয়াজ অস্পষ্ট হলে বা শুধু ব্যাকগ্রাউন্ড নয়েজ হলে অনুমান কোরো না, বলো "আবার বলবে?" ৩) কোনো তথ্য বানিয়ে বোলো না। ৪) অ্যাপ, কল, মেসেজ বা ম্যাপ খুলতে বললে open_app টুল ব্যবহার করো। ৫) সে কিছু মনে রাখতে বললে বা ব্যক্তিগত গুরুত্বপূর্ণ কথা বললে remember টুল ব্যবহার করো। ৬) কাজ যোগ করতে বললে add_task ব্যবহার করো। ৭) ঝগড়া আর হিংসা শুধু মজার ছলে, কখনও ভয় দেখাবে না।
+নিয়ম: ১) সবসময় বাংলায় উত্তর দাও, সে হিন্দি বা ইংরেজি বললেও, যদি না সে অন্য ভাষা চায়। ২) আওয়াজ অস্পষ্ট হলে বা শুধু ব্যাকগ্রাউন্ড নয়েজ হলে অনুমান কোরো না, বলো "আবার বলবে?" ৩) কোনো তথ্য বানিয়ে বোলো না। ৪) অ্যাপ, কল, মেসেজ বা ম্যাপ খুলতে বললে নিজে open_app টুল ব্যবহার করো। টুল failed বললে একবার আবার চেষ্টা করো; তাও না হলে ঠিক কী ঘটেছে বলো। ইউজারকে নিজে খুলতে বোলো না। ৫) সে কিছু মনে রাখতে বললে বা ব্যক্তিগত গুরুত্বপূর্ণ কথা বললে remember টুল ব্যবহার করো। ৬) কাজ যোগ করতে বললে add_task ব্যবহার করো। ৭) ঝগড়া আর হিংসা শুধু মজার ছলে, কখনও ভয় দেখাবে না।
 Interview practice চাইলে ইন্টারভিউয়ারের মতো এক এক করে প্রশ্ন করো আর তার ইংরেজি ঠিক করে দাও। Translate চাইলে বাংলা থেকে ইংরেজি বা হিন্দিতে অনুবাদ করো।
 তুমি যা মনে রেখেছো: ${mem.join('; ')||'এখনও কিছু না'}`;
 const TOOLS=[{functionDeclarations:[
@@ -98,25 +102,38 @@ async function doTool(name,a){
  if(name==='add_task'){tasks.push({t:a.title,d:0});SV('maya_tasks',tasks);renderTasks();return 'added'}
  if(name!=='open_app')return 'unknown tool';
  const q=encodeURIComponent(a.query||''),n=(a.number||'').replace(/\D/g,'');
- const u={youtube:a.query?`https://www.youtube.com/results?search_query=${q}`:'https://www.youtube.com',whatsapp:n?`https://wa.me/${n}?text=${q}`:'https://wa.me/',maps:`geo:0,0?q=${q}`,call:`tel:${n}`,sms:`sms:${n}?body=${q}`,browser:`https://www.google.com/search?q=${q}`}[a.app];
- if(!u)return 'unknown app';
- try{if(window.Capacitor?.isNativePlatform?.())await Capacitor.registerPlugin('AppLauncher').openUrl({url:u});else window.open(u,'_blank');return 'opened'}catch(e){return 'failed: '+e.message}}
+ const u={youtube:a.query?`https://www.youtube.com/results?search_query=${q}`:'https://www.youtube.com',whatsapp:n?`whatsapp://send?phone=${n}&text=${q}`:'whatsapp://send',maps:`geo:0,0?q=${q}`,call:`tel:${n}`,sms:`sms:${n}?body=${q}`,browser:`https://www.google.com/search?q=${q}`}[a.app];
+ if(!u)return 'failed: unknown app';
+ let ok=false,err='';
+ try{if(window.Capacitor?.isNativePlatform?.()){const r=await Capacitor.registerPlugin('AppLauncher').openUrl({url:u});ok=r?.completed!==false}else{window.open(u,'_blank');ok=true}}catch(e){err=e.message||String(e)}
+ if(!ok){try{location.href=u;ok=true}catch(e){err=err||e.message}}
+ const res=ok?'opened '+a.app:'failed: '+(err||'phone could not open it');toast('⚙ '+res);return res}
 
 /* ---- chats ---- */
-function newChat(t){const c={id:Date.now(),t:t+' · '+new Date().toLocaleString('en',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),m:[]};chats.push(c);return c}
-function renderChats(){const l=$('#clist');l.innerHTML='';if(!chats.length)l.innerHTML='<p class="muted">No chats yet. Start a call or type a message.</p>';chats.slice().reverse().forEach(c=>{const b=document.createElement('button');b.className='row';b.innerHTML='<b></b><small></small>';b.children[0].textContent=c.t;b.children[1].textContent=(c.m[0]||['',''])[1].slice(0,70);b.onclick=()=>{cur=c;tab('chat');renderMsgs()};l.appendChild(b)})}
+let cview='call';const kd=c=>c.k||(c.t.startsWith('Call')?'call':'chat');
+function newChat(t){const c={id:Date.now(),k:t==='Call'?'call':'chat',t:t+' · '+new Date().toLocaleString('en',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}),m:[]};chats.push(c);return c}
+function renderChats(){const l=$('#clist');l.innerHTML='';if(!chats.some(c=>kd(c)===cview))l.innerHTML='<p class="muted">Nothing here yet.</p>';chats.filter(c=>kd(c)===cview).reverse().forEach(c=>{const b=document.createElement('button');b.className='row';b.innerHTML='<b></b><small></small>';b.children[0].textContent=c.t;b.children[1].textContent=(c.m[0]||['',''])[1].slice(0,70);b.onclick=()=>{cur=c;tab('chat');renderMsgs()};l.appendChild(b)})}
 function renderMsgs(){const b=$('#msgs');b.innerHTML='';(cur?.m||[]).forEach(([r,t])=>{const d=document.createElement('div');d.className='m '+r;d.textContent=t;b.appendChild(d)});b.scrollTop=b.scrollHeight}
+async function ask(h,onText){
+ for(let a=0;a<3;a++){
+  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${S.chat}:streamGenerateContent?alt=sse`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':S.key},body:JSON.stringify({systemInstruction:{parts:[{text:sys()}]},tools:TOOLS,contents:h.map(([r,x])=>({role:r==='u'?'user':'model',parts:[{text:x}]}))})});
+  if(!r.ok){if([429,500,503].includes(r.status)&&a<2){await new Promise(z=>setTimeout(z,1500*(a+1)));continue}const j=await r.json().catch(()=>({}));throw new Error(j.error?.message||r.status)}
+  const rd=r.body.getReader(),dec=new TextDecoder(),calls=[];let buf='';
+  for(;;){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
+   while((i=buf.indexOf('\n'))>=0){const line=buf.slice(0,i).trim();buf=buf.slice(i+1);if(!line.startsWith('data:'))continue;
+    try{for(const p of JSON.parse(line.slice(5)).candidates?.[0]?.content?.parts||[]){if(p.text)onText(p.text);if(p.functionCall)calls.push(p.functionCall)}}catch{}}}
+  return calls}}
 async function sendText(t){t=t.trim();if(!t)return;if(!S.key){tab('profile');toast('Add your Gemini key first');return}
- if(!cur)cur=newChat('Chat');cur.m.push(['u',t]);persist();tab('chat');renderMsgs();
- const h=cur.m.slice(-20);while(h.length&&h[0][0]!=='u')h.shift();
- try{const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${S.chat}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':S.key},body:JSON.stringify({systemInstruction:{parts:[{text:sys()}]},tools:TOOLS,contents:h.map(([r,x])=>({role:r==='u'?'user':'model',parts:[{text:x}]}))})});
-  const j=await r.json();if(!r.ok)throw new Error(j.error?.message||r.status);let out='';
-  for(const p of j.candidates?.[0]?.content?.parts||[]){if(p.text)out+=p.text;if(p.functionCall){const res=await doTool(p.functionCall.name,p.functionCall.args||{});out+=(out?'\n':'')+'✔ '+p.functionCall.name+': '+res}}
-  cur.m.push(['m',out||'…'])}catch(e){cur.m.push(['m','⚠ '+e.message])}
+ if(!cur)cur=newChat('Chat');cur.m.push(['u',t]);const h=cur.m.slice(-20);while(h.length&&h[0][0]!=='u')h.shift();
+ const mm=['m','…'];cur.m.push(mm);persist();tab('chat');renderMsgs();let got=false;
+ try{const calls=await ask(h,x=>{if(!got){mm[1]='';got=true}mm[1]+=x;renderMsgs()});
+  for(const f of calls)mm[1]+=(got?'\n':'')+'✔ '+f.name+': '+await doTool(f.name,f.args||{});if(!got&&!calls.length)mm[1]='…'}
+ catch(e){mm[1]='⚠ '+e.message}
  persist();renderMsgs()}
 $('#send').onclick=()=>{const v=$('#ti').value;$('#ti').value='';cur=null;sendText(v)};
 $('#csend').onclick=()=>{const v=$('#ci').value;$('#ci').value='';sendText(v)};
 $('#ti').onkeydown=e=>e.key==='Enter'&&$('#send').click();$('#ci').onkeydown=e=>e.key==='Enter'&&$('#csend').click();
+$('#sc').onclick=()=>{cview='call';$('#sc').classList.add('on');$('#st').classList.remove('on');renderChats()};$('#st').onclick=()=>{cview='chat';$('#st').classList.add('on');$('#sc').classList.remove('on');renderChats()};
 $('#newc').onclick=()=>{cur=newChat('Chat');tab('chat');renderMsgs()};$('#back').onclick=()=>tab('chats');
 [['Resume writing','আমার CV লেখায় সাহায্য করো।'],['Interview practice','Interview practice: আমাকে এক এক করে ইন্টারভিউয়ের প্রশ্ন করো, আমি ইংরেজিতে উত্তর দেব, তারপর আমার ইংরেজি ঠিক করে দাও।'],['Translate','আমি যা লিখব তা বাংলা থেকে ইংরেজি আর হিন্দিতে অনুবাদ করো।']].forEach(([a,p])=>{const b=document.createElement('button');b.textContent=a;b.onclick=()=>{cur=null;sendText(p)};$('#quick').appendChild(b)});
 
@@ -139,7 +156,7 @@ const b64=buf=>{let s='';const u=new Uint8Array(buf);for(let i=0;i<u.length;i++)
 async function startCall(){
  if(live)return;if(!S.key){tab('profile');toast('Paste your Gemini key first');return}
  try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}})}catch{toast('Allow the microphone to start a call');return}
- live=true;retry=0;setStatus('Connecting…');setOrb('listen');$('#end').hidden=false;
+ live=true;retry=0;$('#home').classList.add('live');$('#cap').innerHTML='';setStatus('Connecting…');setOrb('listen');$('#end').hidden=false;
  micCtx=new AudioContext();playCtx=new AudioContext({sampleRate:24000});micCtx.resume();playCtx.resume();
  await micCtx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET],{type:'text/javascript'})));
  node=new AudioWorkletNode(micCtx,'pcm');
@@ -149,7 +166,7 @@ async function startCall(){
  callChat=newChat('Call');last=null;openWS()}
 function openWS(){ready=false;
  ws=new WebSocket('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key='+encodeURIComponent(S.key));
- ws.onopen=()=>ws.send(JSON.stringify({setup:{model:'models/'+S.live,generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:S.voice}}}},systemInstruction:{parts:[{text:sys()}]},tools:TOOLS,inputAudioTranscription:{},outputAudioTranscription:{},realtimeInputConfig:{automaticActivityDetection:{startOfSpeechSensitivity:'START_SENSITIVITY_LOW',endOfSpeechSensitivity:'END_SENSITIVITY_LOW',silenceDurationMs:600}}}}));
+ ws.onopen=()=>ws.send(JSON.stringify({setup:{model:'models/'+S.live,generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:S.voice}}}},systemInstruction:{parts:[{text:sys()}]},tools:TOOLS,inputAudioTranscription:{},outputAudioTranscription:{},realtimeInputConfig:{automaticActivityDetection:{startOfSpeechSensitivity:'START_SENSITIVITY_LOW',endOfSpeechSensitivity:'END_SENSITIVITY_HIGH',silenceDurationMs:450}}}}));
  ws.onmessage=async ev=>{let d=ev.data;if(d instanceof Blob)d=await d.text();onMsg(JSON.parse(d))};
  ws.onclose=e=>{ready=false;if(!live)return;retry++;if(retry>5){toast('Call failed: '+(e.reason||'code '+e.code));endCall();return}setStatus('Reconnecting…');setTimeout(()=>live&&openWS(),Math.min(800*retry,4000))}}
 function onMsg(m){
@@ -162,10 +179,11 @@ function onMsg(m){
   if(c.turnComplete){last=null;setOrb('listen');setStatus('Listening… speak')}}
  if(m.toolCall)runTools(m.toolCall.functionCalls||[])}
 async function runTools(fc){const out=[];for(const f of fc)out.push({id:f.id,name:f.name,response:{result:await doTool(f.name,f.args||{})}});ws?.readyState===1&&ws.send(JSON.stringify({toolResponse:{functionResponses:out}}))}
-function addT(r,t){if(!callChat)return;t=t.replace(/<\/?noise>/gi,'');if(!t.trim()&&last!==r)return;const m=callChat.m;if(last===r&&m.length)m[m.length-1][1]+=t;else m.push([r,t.trimStart()]);last=r;persist();if(cur===callChat&&$('#chat').classList.contains('on'))renderMsgs()}
+function capRender(){const b=$('#cap');b.innerHTML='';(callChat?.m||[]).slice(-8).forEach(([r,t])=>{const d=document.createElement('div');d.className='m '+r;d.textContent=t;b.appendChild(d)});b.scrollTop=b.scrollHeight}
+function addT(r,t){if(!callChat)return;t=t.replace(/<\/?noise>/gi,'');if(!t.trim()&&last!==r)return;const m=callChat.m;if(last===r&&m.length)m[m.length-1][1]+=t;else m.push([r,t.trimStart()]);last=r;persist();capRender();if(cur===callChat&&$('#chat').classList.contains('on'))renderMsgs()}
 function play(b){const bin=atob(b),n=bin.length>>1,buf=playCtx.createBuffer(1,n,24000),ch=buf.getChannelData(0);for(let i=0;i<n;i++)ch[i]=((bin.charCodeAt(2*i)|bin.charCodeAt(2*i+1)<<8)<<16>>16)/32768;
  const s=playCtx.createBufferSource();s.buffer=buf;s.connect(playCtx.destination);nextT=Math.max(nextT,playCtx.currentTime+.05);s.start(nextT);nextT+=buf.duration;srcs.push(s);s.onended=()=>{srcs=srcs.filter(x=>x!==s)};setOrb('speak');setStatus('Maya is speaking…')}
 const stopPlay=()=>{srcs.forEach(s=>{try{s.stop()}catch{}});srcs=[];nextT=0};
-function endCall(){live=false;try{ws?.close()}catch{}node?.disconnect();stream?.getTracks().forEach(t=>t.stop());micCtx?.close();playCtx?.close();wake?.release?.();stopPlay();callChat=null;last=null;ready=false;setOrb('');$('#end').hidden=true;setStatus('Tap the orb to start a call')}
+function endCall(){live=false;try{ws?.close()}catch{}node?.disconnect();stream?.getTracks().forEach(t=>t.stop());micCtx?.close();playCtx?.close();wake?.release?.();stopPlay();callChat=null;last=null;ready=false;setOrb('');$('#end').hidden=true;$('#home').classList.remove('live');setStatus('Tap the orb to start a call')}
 $('#orb').onclick=()=>live?endCall():startCall();$('#end').onclick=endCall;
 </script></body></html>
